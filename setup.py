@@ -16,7 +16,7 @@ extras_require = {
         "lru-dict>=1.1.6",
         "mypy-extensions>=1.0.0",
         "py-ecc>=1.4.7,<7.0.0",
-        "pyethash>=0.1.27,<1.0.0",
+        # "pyethash>=0.1.27,<1.0.0",
         "rlp>=3,<4",
         "trie>=2.0.0,<3",
     ],

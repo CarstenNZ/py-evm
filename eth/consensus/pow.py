@@ -18,11 +18,11 @@ from eth_utils import (
     big_endian_to_int,
     encode_hex,
 )
-from pyethash import (
-    EPOCH_LENGTH,
-    hashimoto_light,
-    mkcache_bytes,
-)
+# from pyethash import (
+#     EPOCH_LENGTH,
+#     hashimoto_light,
+#     mkcache_bytes,
+# )
 
 from eth.abc import (
     AtomicDatabaseAPI,
