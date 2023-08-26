@@ -200,15 +200,15 @@ class BaseComputation(ComputationAPI, Configurable):
         )
         return child_message
 
-    def apply_child_computation(
+    async def apply_child_computation(
         self,
         child_msg: MessageAPI,
     ) -> ComputationAPI:
-        child_computation = self.generate_child_computation(child_msg)
+        child_computation = await self.generate_child_computation(child_msg)
         self.add_child_computation(child_computation)
         return child_computation
 
-    def generate_child_computation(
+    async def generate_child_computation(
         self,
         child_msg: MessageAPI,
     ) -> ComputationAPI:
@@ -219,7 +219,7 @@ class BaseComputation(ComputationAPI, Configurable):
                 self.transaction_context,
             )
         else:
-            child_computation = self.apply_message(
+            child_computation = await self.apply_message(
                 self.state,
                 child_msg,
                 self.transaction_context,

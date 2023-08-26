@@ -4,6 +4,7 @@ from typing import (
     Any,
     Callable,
     Dict,
+Coroutine,
 )
 
 from eth_utils.toolz import (
@@ -45,12 +46,13 @@ from eth.vm.opcode import (
 
 def ensure_no_static(opcode_fn: Callable[..., Any]) -> Callable[..., Any]:
     @functools.wraps(opcode_fn)
-    def inner(computation: ComputationAPI) -> Callable[..., Any]:
+    async def inner(computation: ComputationAPI) -> Callable[..., Any]:
         if computation.msg.is_static:
             raise WriteProtection(
                 "Cannot modify state while inside of a STATICCALL context"
             )
-        return opcode_fn(computation)
+        coro_or_val = opcode_fn(computation)
+        return (await coro_or_val) if isinstance(coro_or_val, Coroutine) else coro_or_val
 
     return inner
 

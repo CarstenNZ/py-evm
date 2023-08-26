@@ -83,18 +83,18 @@ class NetSStoreGasSchedule(NamedTuple):
     sstore_clears_schedule: int
 
 
-def net_sstore(gas_schedule: NetSStoreGasSchedule, computation: ComputationAPI) -> int:
+async def net_sstore(gas_schedule: NetSStoreGasSchedule, computation: ComputationAPI) -> int:
     """
     :return slot: where the new value was stored
     """
     slot, value = computation.stack_pop_ints(2)
 
-    current_value = computation.state.get_storage(
+    current_value = await computation.state.get_storage(
         address=computation.msg.storage_address,
         slot=slot,
     )
 
-    original_value = computation.state.get_storage(
+    original_value = await computation.state.get_storage(
         address=computation.msg.storage_address, slot=slot, from_journal=False
     )
 

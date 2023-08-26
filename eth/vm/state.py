@@ -159,8 +159,8 @@ class BaseState(Configurable, StateAPI):
     def increment_nonce(self, address: Address) -> None:
         self._account_db.increment_nonce(address)
 
-    def get_code(self, address: Address) -> bytes:
-        return self._account_db.get_code(address)
+    async def get_code(self, address: Address) -> bytes:
+        return await self._account_db.get_code(address)
 
     def set_code(self, address: Address, code: bytes) -> None:
         self._account_db.set_code(address, code)

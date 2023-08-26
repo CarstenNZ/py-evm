@@ -53,7 +53,7 @@ class FrontierComputation(BaseComputation):
     _precompiles = FRONTIER_PRECOMPILES  # type: ignore # https://github.com/python/mypy/issues/708 # noqa: E501
 
     @classmethod
-    def apply_message(
+    async def apply_message(
         cls,
         state: StateAPI,
         message: MessageAPI,
@@ -84,7 +84,7 @@ class FrontierComputation(BaseComputation):
 
         state.touch_account(message.storage_address)
 
-        computation = cls.apply_computation(
+        computation = await cls.apply_computation(
             state,
             message,
             transaction_context,

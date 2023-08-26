@@ -96,11 +96,11 @@ def balance_eip2929(computation: ComputationAPI) -> None:
     push_balance_of_address(address, computation)
 
 
-def extcodesize_eip2929(computation: ComputationAPI) -> None:
+async def extcodesize_eip2929(computation: ComputationAPI) -> None:
     address = force_bytes_to_address(computation.stack_pop1_bytes())
     _consume_gas_for_account_load(computation, address, mnemonics.EXTCODEHASH)
 
-    code_size = len(computation.state.get_code(address))
+    code_size = len(await computation.state.get_code(address))
     computation.stack_push_int(code_size)
 
 
@@ -126,7 +126,7 @@ def extcodehash_eip2929(computation: ComputationAPI) -> None:
         computation.stack_push_bytes(state.get_code_hash(address))
 
 
-def sload_eip2929(computation: ComputationAPI) -> None:
+async def sload_eip2929(computation: ComputationAPI) -> None:
     slot = computation.stack_pop1_int()
 
     if _mark_storage_warm(computation, slot):
@@ -135,7 +135,7 @@ def sload_eip2929(computation: ComputationAPI) -> None:
         gas_cost = berlin_constants.WARM_STORAGE_READ_COST
     computation.consume_gas(gas_cost, reason=mnemonics.SLOAD)
 
-    value = computation.state.get_storage(
+    value = await computation.state.get_storage(
         address=computation.msg.storage_address,
         slot=slot,
     )
@@ -149,11 +149,11 @@ GAS_SCHEDULE_EIP2929 = GAS_SCHEDULE_EIP2200._replace(
 
 
 @curry
-def sstore_eip2929_generic(
+async def sstore_eip2929_generic(
     gas_schedule: NetSStoreGasSchedule,
     computation: ComputationAPI,
 ) -> int:
-    slot = sstore_eip2200_generic(gas_schedule, computation)
+    slot = await sstore_eip2200_generic(gas_schedule, computation)
 
     if _mark_storage_warm(computation, slot):
         gas_cost = berlin_constants.COLD_SLOAD_COST

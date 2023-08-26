@@ -25,7 +25,7 @@ GAS_SCHEDULE_EIP2200 = GAS_SCHEDULE_EIP1283._replace(
 
 
 @curry
-def sstore_eip2200_generic(
+async def sstore_eip2200_generic(
     gas_schedule: NetSStoreGasSchedule,
     computation: ComputationAPI,
 ) -> int:
@@ -36,7 +36,7 @@ def sstore_eip2200_generic(
             gas_remaining,
         )
     else:
-        return net_sstore(gas_schedule, computation)
+        return await net_sstore(gas_schedule, computation)
 
 
 sstore_eip2200 = sstore_eip2200_generic(GAS_SCHEDULE_EIP2200)

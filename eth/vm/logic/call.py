@@ -60,7 +60,7 @@ class BaseCall(Opcode, ABC):
         """
         return 0
 
-    def __call__(self, computation: ComputationAPI) -> None:
+    async def __call__(self, computation: ComputationAPI) -> None:
         computation.consume_gas(
             self.gas_cost,
             reason=self.mnemonic,
@@ -141,9 +141,9 @@ class BaseCall(Opcode, ABC):
             computation.stack_push_int(0)
         else:
             if code_address:
-                code = computation.state.get_code(code_address)
+                code = await computation.state.get_code(code_address)
             else:
-                code = computation.state.get_code(to)
+                code = await computation.state.get_code(to)
 
             child_msg_kwargs = {
                 "gas": child_msg_gas,
@@ -161,7 +161,7 @@ class BaseCall(Opcode, ABC):
             # TODO: after upgrade to py3.6, use a TypedDict and try again
             child_msg = computation.prepare_child_message(**child_msg_kwargs)  # type: ignore  # noqa: E501
 
-            child_computation = computation.apply_child_computation(child_msg)
+            child_computation = await computation.apply_child_computation(child_msg)
 
             if child_computation.is_error:
                 computation.stack_push_int(0)

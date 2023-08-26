@@ -224,7 +224,7 @@ class VM(Configurable, VirtualMachineAPI):
                 base_fee_per_gas=base_fee,
             )
 
-    def execute_bytecode(
+    async def execute_bytecode(
         self,
         origin: Address,
         gas_price: int,
@@ -257,7 +257,7 @@ class VM(Configurable, VirtualMachineAPI):
         )
 
         # Execute it in the VM
-        return self.state.computation_class.apply_computation(
+        return await self.state.computation_class.apply_computation(
             self.state,
             message,
             transaction_context,
