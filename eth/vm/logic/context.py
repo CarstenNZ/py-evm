@@ -23,17 +23,17 @@ from eth.exceptions import (
 )
 
 
-def balance(computation: ComputationAPI) -> None:
+async def balance(computation: ComputationAPI) -> None:
     addr = force_bytes_to_address(computation.stack_pop1_bytes())
-    push_balance_of_address(addr, computation)
+    await push_balance_of_address(addr, computation)
 
 
-def selfbalance(computation: ComputationAPI) -> None:
-    push_balance_of_address(computation.msg.storage_address, computation)
+async def selfbalance(computation: ComputationAPI) -> None:
+    await push_balance_of_address(computation.msg.storage_address, computation)
 
 
-def push_balance_of_address(address: Address, computation: ComputationAPI) -> None:
-    balance = computation.state.get_balance(address)
+async def push_balance_of_address(address: Address, computation: ComputationAPI) -> None:
+    balance = await computation.state.get_balance(address)
     computation.stack_push_int(balance)
 
 

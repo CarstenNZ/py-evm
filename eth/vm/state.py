@@ -4,6 +4,7 @@ from typing import (
     Sequence,
     Tuple,
     Type,
+    Optional
 )
 
 from eth_typing import (
@@ -59,10 +60,11 @@ class BaseState(Configurable, StateAPI):
         db: AtomicDatabaseAPI,
         execution_context: ExecutionContextAPI,
         state_root: Hash32,
+                    account_db: Optional[AccountDatabaseAPI] = None
     ) -> None:
         self._db = db
         self.execution_context = execution_context
-        self._account_db = self.get_account_db_class()(db, state_root)
+        self._account_db = self.get_account_db_class()(db, state_root) if account_db is None else account_db
 
     #
     # Logging
@@ -141,14 +143,14 @@ class BaseState(Configurable, StateAPI):
     def delete_account(self, address: Address) -> None:
         self._account_db.delete_account(address)
 
-    def get_balance(self, address: Address) -> int:
-        return self._account_db.get_balance(address)
+    async def get_balance(self, address: Address) -> int:
+        return await self._account_db.get_balance(address)
 
-    def set_balance(self, address: Address, balance: int) -> None:
-        self._account_db.set_balance(address, balance)
+    async def set_balance(self, address: Address, balance: int) -> None:
+        await self._account_db.set_balance(address, balance)
 
-    def delta_balance(self, address: Address, delta: int) -> None:
-        self.set_balance(address, self.get_balance(address) + delta)
+    async def delta_balance(self, address: Address, delta: int) -> None:
+        await self.set_balance(address, await self.get_balance(address) + delta)
 
     def get_nonce(self, address: Address) -> int:
         return self._account_db.get_nonce(address)
@@ -180,8 +182,8 @@ class BaseState(Configurable, StateAPI):
     def touch_account(self, address: Address) -> None:
         self._account_db.touch_account(address)
 
-    def account_is_empty(self, address: Address) -> bool:
-        return self._account_db.account_is_empty(address)
+    async def account_is_empty(self, address: Address) -> bool:
+        return await self._account_db.account_is_empty(address)
 
     def is_storage_warm(self, address: Address, slot: int) -> bool:
         return self._account_db.is_storage_warm(address, slot)

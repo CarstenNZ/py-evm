@@ -32,7 +32,7 @@ CallParams = Tuple[int, int, Address, Address, Address, int, int, int, int, bool
 
 class BaseCall(Opcode, ABC):
     @abstractmethod
-    def compute_msg_extra_gas(
+    async def compute_msg_extra_gas(
         self, computation: ComputationAPI, gas: int, to: Address, value: int
     ) -> int:
         raise NotImplementedError("Must be implemented by subclasses")
@@ -41,10 +41,10 @@ class BaseCall(Opcode, ABC):
     def get_call_params(self, computation: ComputationAPI) -> CallParams:
         raise NotImplementedError("Must be implemented by subclasses")
 
-    def compute_msg_gas(
+    async def compute_msg_gas(
         self, computation: ComputationAPI, gas: int, to: Address, value: int
     ) -> Tuple[int, int]:
-        extra_gas = self.compute_msg_extra_gas(computation, gas, to, value)
+        extra_gas = await self.compute_msg_extra_gas(computation, gas, to, value)
         total_fee = gas + extra_gas
         child_msg_gas = gas + (constants.GAS_CALLSTIPEND if value else 0)
         return child_msg_gas, total_fee
@@ -110,13 +110,13 @@ class BaseCall(Opcode, ABC):
 
         # This must be computed *after* the load account fee is charged, so
         # that the 63/64ths rule is applied against the reduced remaining gas.
-        child_msg_gas, child_msg_gas_fee = self.compute_msg_gas(
+        child_msg_gas, child_msg_gas_fee = await self.compute_msg_gas(
             computation, gas, to, value
         )
         computation.consume_gas(child_msg_gas_fee, reason=self.mnemonic)
 
         # Pre-call checks
-        sender_balance = computation.state.get_balance(computation.msg.storage_address)
+        sender_balance = await computation.state.get_balance(computation.msg.storage_address)
 
         insufficient_funds = should_transfer_value and sender_balance < value
         stack_too_deep = computation.msg.depth + 1 > constants.STACK_DEPTH_LIMIT
@@ -183,7 +183,7 @@ class BaseCall(Opcode, ABC):
 
 
 class Call(BaseCall):
-    def compute_msg_extra_gas(
+    async def compute_msg_extra_gas(
         self, computation: ComputationAPI, gas: int, to: Address, value: int
     ) -> int:
         account_exists = computation.state.account_exists(to)
@@ -220,7 +220,7 @@ class Call(BaseCall):
 
 
 class CallCode(BaseCall):
-    def compute_msg_extra_gas(
+    async def compute_msg_extra_gas(
         self, computation: ComputationAPI, gas: int, to: Address, value: int
     ) -> int:
         return constants.GAS_CALLVALUE if value else 0
@@ -256,12 +256,12 @@ class CallCode(BaseCall):
 
 
 class DelegateCall(BaseCall):
-    def compute_msg_gas(
+    async def compute_msg_gas(
         self, computation: ComputationAPI, gas: int, to: Address, value: int
     ) -> Tuple[int, int]:
         return gas, gas
 
-    def compute_msg_extra_gas(
+    async def compute_msg_extra_gas(
         self, computation: ComputationAPI, gas: int, to: Address, value: int
     ) -> int:
         return 0
@@ -300,10 +300,10 @@ class DelegateCall(BaseCall):
 # EIP150
 #
 class CallEIP150(Call):
-    def compute_msg_gas(
+    async def compute_msg_gas(
         self, computation: ComputationAPI, gas: int, to: Address, value: int
     ) -> Tuple[int, int]:
-        extra_gas = self.compute_msg_extra_gas(computation, gas, to, value)
+        extra_gas = await self.compute_msg_extra_gas(computation, gas, to, value)
         return compute_eip150_msg_gas(
             computation=computation,
             gas=gas,
@@ -315,10 +315,10 @@ class CallEIP150(Call):
 
 
 class CallCodeEIP150(CallCode):
-    def compute_msg_gas(
+    async def compute_msg_gas(
         self, computation: ComputationAPI, gas: int, to: Address, value: int
     ) -> Tuple[int, int]:
-        extra_gas = self.compute_msg_extra_gas(computation, gas, to, value)
+        extra_gas = await self.compute_msg_extra_gas(computation, gas, to, value)
         return compute_eip150_msg_gas(
             computation=computation,
             gas=gas,
@@ -330,10 +330,10 @@ class CallCodeEIP150(CallCode):
 
 
 class DelegateCallEIP150(DelegateCall):
-    def compute_msg_gas(
+    async def compute_msg_gas(
         self, computation: ComputationAPI, gas: int, to: Address, value: int
     ) -> Tuple[int, int]:
-        extra_gas = self.compute_msg_extra_gas(computation, gas, to, value)
+        extra_gas = await self.compute_msg_extra_gas(computation, gas, to, value)
         callstipend = 0
         return compute_eip150_msg_gas(
             computation=computation,
@@ -376,12 +376,12 @@ def compute_eip150_msg_gas(
 # EIP161
 #
 class CallEIP161(CallEIP150):
-    def compute_msg_extra_gas(
+    async def compute_msg_extra_gas(
         self, computation: ComputationAPI, gas: int, to: Address, value: int
     ) -> int:
         account_is_dead = not computation.state.account_exists(
             to
-        ) or computation.state.account_is_empty(to)
+        ) or await computation.state.account_is_empty(to)
 
         transfer_gas_fee = constants.GAS_CALLVALUE if value else 0
         create_gas_fee = constants.GAS_NEWACCOUNT if (account_is_dead and value) else 0

@@ -196,12 +196,13 @@ class VM(Configurable, VirtualMachineAPI):
         header: BlockHeaderAPI,
         prev_hashes: Iterable[Hash32],
         chain_context: ChainContextAPI,
+                        execution_context_cls: Type = ExecutionContext
     ) -> ExecutionContextAPI:
         fee_recipient = cls.consensus_class.get_fee_recipient(header)
         try:
             base_fee = header.base_fee_per_gas
         except AttributeError:
-            return ExecutionContext(
+            return execution_context_cls(
                 coinbase=fee_recipient,
                 timestamp=header.timestamp,
                 block_number=header.block_number,
@@ -212,7 +213,7 @@ class VM(Configurable, VirtualMachineAPI):
                 chain_id=chain_context.chain_id,
             )
         else:
-            return ExecutionContext(
+            return execution_context_cls(
                 coinbase=fee_recipient,
                 timestamp=header.timestamp,
                 block_number=header.block_number,

@@ -90,10 +90,10 @@ def _mark_storage_warm(computation: ComputationAPI, slot: int) -> bool:
         return True
 
 
-def balance_eip2929(computation: ComputationAPI) -> None:
+async def balance_eip2929(computation: ComputationAPI) -> None:
     address = force_bytes_to_address(computation.stack_pop1_bytes())
     _consume_gas_for_account_load(computation, address, mnemonics.BALANCE)
-    push_balance_of_address(address, computation)
+    await push_balance_of_address(address, computation)
 
 
 async def extcodesize_eip2929(computation: ComputationAPI) -> None:

@@ -3075,7 +3075,7 @@ class StateAPI(ConfigurableAPI):
         ...
 
     @abstractmethod
-    def account_is_empty(self, address: Address) -> bool:
+    async def account_is_empty(self, address: Address) -> bool:
         """
         Return ``True`` if the account at ``address`` is empty, otherwise ``False``.
         """

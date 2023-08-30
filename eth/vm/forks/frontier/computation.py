@@ -65,15 +65,15 @@ class FrontierComputation(BaseComputation):
             raise StackDepthLimit("Stack depth limit reached")
 
         if message.should_transfer_value and message.value:
-            sender_balance = state.get_balance(message.sender)
+            sender_balance = await state.get_balance(message.sender)
 
             if sender_balance < message.value:
                 raise InsufficientFunds(
                     f"Insufficient funds: {sender_balance} < {message.value}"
                 )
 
-            state.delta_balance(message.sender, -1 * message.value)
-            state.delta_balance(message.storage_address, message.value)
+            await state.delta_balance(message.sender, -1 * message.value)
+            await state.delta_balance(message.storage_address, message.value)
 
             cls.logger.debug2(
                 "TRANSFERRED: %s from %s -> %s",
