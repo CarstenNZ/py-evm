@@ -2209,7 +2209,7 @@ class ComputationAPI(
         ...
 
     @abstractmethod
-    def apply_child_computation(
+    async def apply_child_computation(
         self,
         child_msg: MessageAPI,
     ) -> "ComputationAPI":
@@ -2294,7 +2294,7 @@ class ComputationAPI(
     # -- state transition -- #
     @classmethod
     @abstractmethod
-    def apply_message(
+    async def apply_message(
         cls,
         state: "StateAPI",
         message: MessageAPI,

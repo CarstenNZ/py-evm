@@ -112,20 +112,20 @@ class BaseComputation(ComputationAPI, Configurable):
 
     logger = get_extended_debug_logger("eth.vm.computation.BaseComputation")
 
-    state: StateAPI = None
-    msg: MessageAPI = None
-    transaction_context: TransactionContextAPI = None
-    code: CodeStreamAPI = None
-    children: List[ComputationAPI] = None
-    return_data: bytes = b""
-    accounts_to_delete: Dict[Address, Address] = None
+    state: StateAPI # = None
+    msg: MessageAPI # = None
+    transaction_context: TransactionContextAPI # = None
+    code: CodeStreamAPI # = None
+    children: List[ComputationAPI] # = None
+    return_data: bytes # = b""
+    accounts_to_delete: Dict[Address, Address] # = None
 
-    _memory: MemoryAPI = None
-    _stack: StackAPI = None
-    _gas_meter: GasMeterAPI = None
-    _error: VMError = None
-    _output: bytes = b""
-    _log_entries: List[Tuple[int, Address, Tuple[int, ...], bytes]] = None
+    _memory: MemoryAPI # = None
+    _stack: StackAPI # = None
+    _gas_meter: GasMeterAPI # = None
+    _error: VMError # = None
+    _output: bytes # = b""
+    _log_entries: List[Tuple[int, Address, Tuple[int, ...], bytes]] # = None
 
     # VM configuration
     opcodes: Dict[int, OpcodeAPI] = None
@@ -148,6 +148,8 @@ class BaseComputation(ComputationAPI, Configurable):
         self.accounts_to_delete = {}
         self._stack = Stack()
         self._memory = Memory()
+        self._error = None
+        self._output = b''
         self._log_entries = []
 
     def _configure_gas_meter(self) -> GasMeter:

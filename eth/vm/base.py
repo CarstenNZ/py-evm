@@ -104,7 +104,7 @@ class VM(Configurable, VirtualMachineAPI):
     consensus_class: Type[ConsensusAPI] = PowConsensus
     extra_data_max_bytes: ClassVar[int] = 32
     fork: str = None
-    chaindb: ChainDatabaseAPI = None
+    chaindb: ChainDatabaseAPI   # = None
     _state_class: Type[StateAPI] = None
 
     _state = None
